@@ -1,0 +1,2 @@
+defmodule Dogstatsd do
+end
