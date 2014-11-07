@@ -29,9 +29,11 @@ defmodule DogStatsd do
     GenServer.start_link(__MODULE__, config, options)
   end
 
-  def event(dogstatsd \\ :dogstatsd, title, text, opts \\ %{}) do
-    opts = update_in opts, [:tags], &((tags(dogstatsd) ++ (&1 || [])) |> Enum.uniq)
+  def gauge(dogstatsd, stat, value, opts \\ %{}) do
+    send_stats dogstatsd, stat, value, :g, opts
+  end
 
+  def event(dogstatsd, title, text, opts \\ %{}) do
     event_string = format_event(title, text, opts)
 
     if byte_size(event_string) > 8 * 1024 do
@@ -56,7 +58,8 @@ defmodule DogStatsd do
   def add_opts(event, %{:alert_type       => opt} = opts), do: format_event("#{event}|t:#{rm_pipes(opt)}", Map.delete(opts, :alert_type))
   def add_opts(event, %{} = opts), do: add_tags(event, opts[:tags])
 
-  def add_tags(event, []), do: event
+  def add_tags(event, nil), do: event
+  def add_tags(event, []),  do: event
   def add_tags(event, tags) do
     tags = tags
            |> Enum.map(&rm_pipes/1)
@@ -65,7 +68,35 @@ defmodule DogStatsd do
     "#{event}|##{tags}"
   end
 
-  def send_to_socket(dogstatsd \\ :dogstatsd, message)
+  def send_stats(dogstatsd, stat, delta, type, opts \\ %{})
+  def send_stats(dogstatsd, stat, delta, type, %{:sample_rate => sample_rate} = opts) do
+    :random.seed(:os.timestamp)
+    opts = Map.put(opts, :sample, :random.uniform)
+    send_to_socket dogstatsd, get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts)
+
+  end
+  def send_stats(dogstatsd, stat, delta, type, opts) do
+    send_to_socket dogstatsd, get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts)
+  end
+
+  def get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts) do
+    opts = update_in opts, [:tags], &((tags(dogstatsd) ++ (&1 || [])) |> Enum.uniq)
+    format_stats(dogstatsd, stat, delta, type, opts)
+  end
+
+  def format_stats(dogstatsd, stat, delta, type, %{:sample_rate => sr, :sample => s}) when s > sr, do: nil
+  def format_stats(dogstatsd, stat, delta, type, %{:sample => s} = opts), do: format_stats(dogstatsd, stat, delta, type, Map.delete(opts, :sample))
+  def format_stats(dogstatsd, stat, delta, type, %{:sample_rate => sr} = opts) do
+    "#{prefix(dogstatsd)}#{stat}:#{delta}|#{type}|@#{sr}"
+    |> add_tags(opts[:tags])
+  end
+  def format_stats(dogstatsd, stat, delta, type, opts) do
+    "#{prefix(dogstatsd)}#{stat}:#{delta}|#{type}"
+    |> add_tags(opts[:tags])
+  end
+
+  def send_to_socket(dogstatsd, message)
+  def send_to_socket(_dogstatsd, nil), do: nil
   def send_to_socket(_dogstatsd, message) when byte_size(message) > 8 * 1024, do: nil
   def send_to_socket(dogstatsd, message) do
     Logger.debug "DogStatsd: #{message}"
@@ -79,6 +110,7 @@ defmodule DogStatsd do
   def escape_event_content(msg) do
     String.replace(msg, "\n", "\\n")
   end
+
   def rm_pipes(msg) do
     String.replace(msg, "|", "")
   end
@@ -119,6 +151,10 @@ defmodule DogStatsd do
     GenServer.call(dogstatsd, :get_socket)
   end
 
+  def prefix(dogstatsd) do
+    GenServer.call(dogstatsd, :get_prefix)
+  end
+
 
   ###################
   # Server Callbacks
@@ -145,6 +181,10 @@ defmodule DogStatsd do
              |> Map.put(:prefix, "#{namespace}.")
 
     {:reply, config[:namespace], config}
+  end
+
+  def handle_call(:get_prefix, _from, config) do
+    {:reply, config[:prefix], config}
   end
 
   def handle_call(:get_host, _from, config) do
