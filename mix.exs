@@ -3,7 +3,7 @@ defmodule DogStatsd.Mixfile do
 
   def project do
     [app: :dogstatsd,
-     version: "0.0.1",
+     version: version,
      elixir: "~> 1.0",
      deps: deps]
   end
@@ -26,5 +26,12 @@ defmodule DogStatsd.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     []
+  end
+
+  defp version do
+     ~r/[0-9]+/
+     |> Regex.scan(File.read!("VERSION.yml"))
+     |> List.flatten
+     |> Enum.join(".")
   end
 end

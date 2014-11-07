@@ -1,2 +1,2 @@
-defmodule Dogstatsd do
+defmodule DogStatsd do
 end
