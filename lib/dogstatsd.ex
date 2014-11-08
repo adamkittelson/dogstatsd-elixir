@@ -50,12 +50,12 @@ defmodule DogStatsd do
     add_opts("_e{#{String.length(title)},#{String.length(text)}}:#{title}|#{text}", opts)
   end
 
-  def add_opts(event, %{:date_happened    => opt} = opts), do: format_event("#{event}|d:#{rm_pipes(opt)}", Map.delete(opts, :date_happened))
-  def add_opts(event, %{:hostname         => opt} = opts), do: format_event("#{event}|h:#{rm_pipes(opt)}", Map.delete(opts, :hostname))
-  def add_opts(event, %{:aggregation_key  => opt} = opts), do: format_event("#{event}|k:#{rm_pipes(opt)}", Map.delete(opts, :aggregation_key))
-  def add_opts(event, %{:priority         => opt} = opts), do: format_event("#{event}|p:#{rm_pipes(opt)}", Map.delete(opts, :priority))
-  def add_opts(event, %{:source_type_name => opt} = opts), do: format_event("#{event}|s:#{rm_pipes(opt)}", Map.delete(opts, :source_type_name))
-  def add_opts(event, %{:alert_type       => opt} = opts), do: format_event("#{event}|t:#{rm_pipes(opt)}", Map.delete(opts, :alert_type))
+  def add_opts(event, %{:date_happened    => opt} = opts), do: add_opts("#{event}|d:#{rm_pipes(opt)}", Map.delete(opts, :date_happened))
+  def add_opts(event, %{:hostname         => opt} = opts), do: add_opts("#{event}|h:#{rm_pipes(opt)}", Map.delete(opts, :hostname))
+  def add_opts(event, %{:aggregation_key  => opt} = opts), do: add_opts("#{event}|k:#{rm_pipes(opt)}", Map.delete(opts, :aggregation_key))
+  def add_opts(event, %{:priority         => opt} = opts), do: add_opts("#{event}|p:#{rm_pipes(opt)}", Map.delete(opts, :priority))
+  def add_opts(event, %{:source_type_name => opt} = opts), do: add_opts("#{event}|s:#{rm_pipes(opt)}", Map.delete(opts, :source_type_name))
+  def add_opts(event, %{:alert_type       => opt} = opts), do: add_opts("#{event}|t:#{rm_pipes(opt)}", Map.delete(opts, :alert_type))
   def add_opts(event, %{} = opts), do: add_tags(event, opts[:tags])
 
   def add_tags(event, nil), do: event
