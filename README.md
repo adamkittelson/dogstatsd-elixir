@@ -2,7 +2,7 @@
 dogstatsd-elixir
 ==============
 
-A client for DogStatsD, an extension of the StatsD metric server for Datadog.
+A client for DogStatsd, an extension of the StatsD metric server for Datadog.
 
 Quick Start Guide
 -----------------
@@ -30,10 +30,10 @@ First install the library:
 Then start instrumenting your code:
 
 ``` elixir
-# Require the dogstats module.
+# Require the dogstatsd module.
 require DogStatsd
 
-# Configure DogStatsD.
+# Configure DogStatsd.
 statsd = DogStatsd.new("localhost", 8125)
 
 # Increment a counter.
