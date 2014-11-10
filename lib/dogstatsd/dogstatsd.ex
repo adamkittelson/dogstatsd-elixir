@@ -115,10 +115,12 @@ defmodule DogStatsd.DogStatsd do
       def send_to_socket(dogstatsd, message) do
         Logger.debug "DogStatsd: #{message}"
 
-        :gen_udp.send(socket(dogstatsd),
+        {:ok, socket} = :gen_udp.open(0)
+        :gen_udp.send(socket,
                       host(dogstatsd) |> String.to_char_list,
                       port(dogstatsd),
                       message |> String.to_char_list)
+        :gen_udp.close(socket)
       end
 
       def escape_event_content(msg) do

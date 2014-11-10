@@ -17,13 +17,10 @@ defmodule DogStatsd do
   end
 
   def start_link(config, options \\ []) do
-    {:ok, socket} = :gen_udp.open(config[:outgoing_port] || 8789)
-
     config = config
              |> Map.take([:host, :port, :namespace, :tags, :max_buffer_size])
              |> Map.put_new(:max_buffer_size, 50)
              |> Map.put_new(:buffer, [])
-             |> Map.put_new(:socket, socket)
 
 
     GenServer.start_link(__MODULE__, config, options)
@@ -153,10 +150,6 @@ defmodule DogStatsd do
              |> Map.put(:tags, tags)
 
     {:reply, config[:tags], config}
-  end
-
-  def handle_call(:get_socket, _from, config) do
-    {:reply, config[:socket], config}
   end
 
   def handle_call({:add_to_buffer, message}, _from, config) do
