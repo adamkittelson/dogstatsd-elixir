@@ -68,12 +68,47 @@ defmodule DogStatsd do
     "#{event}|##{tags}"
   end
 
+  def increment(dogstatsd, stat, opts \\ %{}) do
+    count dogstatsd, stat, 1, opts
+  end
+
+  def decrement(dogstatsd, stat, opts \\ %{}) do
+    count dogstatsd, stat, -1, opts
+  end
+
+  def count(dogstatsd, stat, count, opts \\ %{}) do
+    send_stats dogstatsd, stat, count, :c, opts
+  end
+
+  def histogram(dogstatsd, stat, value, opts \\ %{}) do
+    send_stats dogstatsd, stat, value, :h, opts
+  end
+
+  def timing(dogstatsd, stat, ms, opts \\ %{}) do
+    send_stats dogstatsd, stat, ms, :ms, opts
+  end
+
+  defmacro time(dogstatsd, stat, opts \\ Macro.escape(%{}), do_block) do
+    quote do
+      function = fn -> unquote do_block[:do] end
+
+      {elapsed, result} = :timer.tc(DogStatsd, :_time_apply, [function])
+      DogStatsd.timing(unquote(dogstatsd), unquote(stat), round(elapsed / 1000), unquote(opts))
+      result
+    end
+  end
+
+  def _time_apply(function), do: function.()
+
+  def set(dogstatsd, stat, value, opts \\ %{}) do
+    send_stats dogstatsd, stat, value, :s, opts
+  end
+
   def send_stats(dogstatsd, stat, delta, type, opts \\ %{})
-  def send_stats(dogstatsd, stat, delta, type, %{:sample_rate => sample_rate} = opts) do
+  def send_stats(dogstatsd, stat, delta, type, %{:sample_rate => _sample_rate} = opts) do
     :random.seed(:os.timestamp)
     opts = Map.put(opts, :sample, :random.uniform)
     send_to_socket dogstatsd, get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts)
-
   end
   def send_stats(dogstatsd, stat, delta, type, opts) do
     send_to_socket dogstatsd, get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts)
@@ -84,7 +119,7 @@ defmodule DogStatsd do
     format_stats(dogstatsd, stat, delta, type, opts)
   end
 
-  def format_stats(dogstatsd, stat, delta, type, %{:sample_rate => sr, :sample => s}) when s > sr, do: nil
+  def format_stats(_dogstatsd, _stat, _delta, _type, %{:sample_rate => sr, :sample => s}) when s > sr, do: nil
   def format_stats(dogstatsd, stat, delta, type, %{:sample => s} = opts), do: format_stats(dogstatsd, stat, delta, type, Map.delete(opts, :sample))
   def format_stats(dogstatsd, stat, delta, type, %{:sample_rate => sr} = opts) do
     "#{prefix(dogstatsd)}#{stat}:#{delta}|#{type}|@#{sr}"
