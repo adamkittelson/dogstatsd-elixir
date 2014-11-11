@@ -68,7 +68,7 @@ defmodule DogStatsd.DogStatsd do
           function = fn -> unquote do_block[:do] end
 
           {elapsed, result} = :timer.tc(DogStatsd, :_time_apply, [function])
-          DogStatsd.timing(unquote(dogstatsd), unquote(stat), round(elapsed / 1000), unquote(opts))
+          DogStatsd.timing(unquote(dogstatsd), unquote(stat), trunc(elapsed / 1000), unquote(opts))
           result
         end
       end

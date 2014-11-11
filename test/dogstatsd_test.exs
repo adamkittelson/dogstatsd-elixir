@@ -173,4 +173,27 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:500|ms|@1.0'}
   end
 
+
+  ###########
+  # time
+  ###########
+
+  test "formats the time message correctly and returns the value of the block" do
+    return_value = DogStatsd.time(:dogstatsd, "foobar") do
+                     :timer.sleep(1)
+                     "test"
+                   end
+    assert return_value == "test"
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms'}
+  end
+
+  test "with a sample rate should format the time message according to the statsd spec" do
+    return_value = DogStatsd.time(:dogstatsd, "foobar", %{:sample_rate => 1.0}) do
+                     :timer.sleep(1)
+                     "test"
+                   end
+    assert return_value == "test"
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms|@1.0'}
+  end
+
 end
