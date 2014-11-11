@@ -119,7 +119,7 @@ defmodule DogStatsdTest do
   # gauge
   ###########
 
-  test "should send a message with a 'g' type, per the nearbuy fork" do
+  test "should send a message with a 'g' type" do
     DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", 536)
     assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:536|g'}
     DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", -107.3)
@@ -129,6 +129,23 @@ defmodule DogStatsdTest do
   test "with a sample rate should format the guage message according to the statsd spec" do
     DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", 536, %{:sample_rate => 1.0})
     assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:536|g|@1.0'}
+  end
+
+
+  ###########
+  # histogram
+  ###########
+
+  test "should send a message with a 'h' type" do
+    DogStatsd.histogram(:dogstatsd, "ohmy", 536)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h'}
+    DogStatsd.histogram(:dogstatsd, "ohmy", -107.3)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:-107.3|h'}
+  end
+
+  test "with a sample rate should format the histogram message according to the statsd spec" do
+    DogStatsd.histogram(:dogstatsd, "ohmy", 536, %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h|@1.0'}
   end
 
 end
