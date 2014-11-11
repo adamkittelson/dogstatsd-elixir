@@ -305,5 +305,63 @@ defmodule DogStatsdTest do
     DogStatsd.increment(:dogstatsd, "c")
     assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c'}
   end
-  
+
+
+  ##########
+  # batched
+  ##########
+
+  test "allows sending single sample in one packet" do
+    DogStatsd.batch :dogstatsd, fn(s) ->
+      s.increment(:dogstatsd, "mycounter")
+    end
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
+  end
+
+  test "allows sending multiple samples in one packet" do
+    DogStatsd.batch :dogstatsd, fn(s) ->
+      s.increment(:dogstatsd, "mycounter")
+      s.decrement(:dogstatsd, "myothercounter")
+    end
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c\nmyothercounter:-1|c'}
+  end
+
+  test "defaults back to single metric packets after the block" do
+    DogStatsd.batch :dogstatsd, fn(s) ->
+      s.gauge(:dogstatsd, "mygauge", 10)
+      s.gauge(:dogstatsd, "myothergauge", 20)
+    end
+
+    DogStatsd.increment(:dogstatsd, "mycounter")
+    DogStatsd.increment(:dogstatsd, "myothercounter")
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'mygauge:10|g\nmyothergauge:20|g'}
+    assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
+    assert_receive {:udp, _port, _from_ip, _from_port, 'myothercounter:1|c'}
+  end
+
+  test "flushes when the buffer gets too big" do
+    DogStatsd.batch :dogstatsd, fn(s) ->
+      # increment a counter 50 times in batch
+      Enum.each(1..51, fn(_) ->
+        s.increment(:dogstatsd, "mycounter")
+      end)
+    end
+
+    # We should receive a packet of 50 messages that was automatically
+    # flushed when the buffer got too big
+    theoretical_reply = Enum.into(1..50, [])
+                        |> Enum.map(fn(_) -> "mycounter:1|c" end)
+                        |> Enum.join("\n")
+                        |> String.to_char_list
+
+
+    assert_receive {:udp, _port, _from_ip, _from_port, ^theoretical_reply}
+
+    # When the block finishes, the remaining buffer is flushed
+    assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
+  end
+
 end

@@ -115,6 +115,7 @@ defmodule DogStatsd.DogStatsd do
       end
 
       def send_to_socket(_dogstatsd, nil), do: nil
+      def send_to_socket(_dogstatsd, []), do: nil
       def send_to_socket(_dogstatsd, message) when byte_size(message) > 8 * 1024, do: nil
       def send_to_socket(dogstatsd, message) do
         Logger.debug "DogStatsd: #{message}"

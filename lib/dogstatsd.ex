@@ -83,8 +83,10 @@ defmodule DogStatsd do
   end
 
   def flush_buffer(dogstatsd) do
-    send_to_socket dogstatsd, dogstatsd |> get_buffer |> Enum.join("\n")
-    GenServer.call(dogstatsd, :flush_buffer)
+    buffer = dogstatsd
+             |> GenServer.call(:flush_buffer)
+             |> Enum.join("\n")
+    send_to_socket dogstatsd, buffer
   end
 
 
@@ -164,7 +166,7 @@ defmodule DogStatsd do
   end
 
   def handle_call(:flush_buffer, _from, config) do
-    {:reply, [], Map.put(config, :buffer, [])}
+    {:reply, config[:buffer], Map.put(config, :buffer, [])}
   end
 
   def handle_call(:get_buffer, _from, config) do
