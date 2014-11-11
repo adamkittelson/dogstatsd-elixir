@@ -205,4 +205,41 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms|@1.0'}
   end
 
+
+  ############
+  # namespaces
+  ############
+
+  test "adds namespace to increment" do
+    DogStatsd.namespace(:dogstatsd, "service")
+
+    DogStatsd.increment(:dogstatsd, "foobar")
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:1|c'}
+  end
+
+  test "adds namespace to decrement" do
+    DogStatsd.namespace(:dogstatsd, "service")
+
+    DogStatsd.decrement(:dogstatsd, "foobar")
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:-1|c'}
+  end
+
+  test "adds namespace to timing" do
+    DogStatsd.namespace(:dogstatsd, "service")
+
+    DogStatsd.timing(:dogstatsd, "foobar", 500)
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:500|ms'}
+  end
+
+  test "adds namespace to gauge" do
+    DogStatsd.namespace(:dogstatsd, "service")
+
+    DogStatsd.gauge(:dogstatsd, "foobar", 500)
+
+    assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:500|g'}
+  end
+
 end
