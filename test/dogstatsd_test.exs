@@ -34,4 +34,47 @@ defmodule DogStatsdTest do
     assert DogStatsd.tags(statsd) == ["global"]
   end
 
+
+  ##########
+  # writers
+  ##########
+
+  test "sets host, port, namespace, and global tags" do
+    DogStatsd.host(:dogstatsd, "1.2.3.4")
+    DogStatsd.port(:dogstatsd, 5678)
+    DogStatsd.namespace(:dogstatsd, "n4m35p4c3")
+    DogStatsd.tags(:dogstatsd, "t4g5")
+
+    assert DogStatsd.host(:dogstatsd) == "1.2.3.4"
+    assert DogStatsd.port(:dogstatsd) == 5678
+    assert DogStatsd.namespace(:dogstatsd) == "n4m35p4c3"
+    assert DogStatsd.tags(:dogstatsd) == "t4g5"
+  end
+
+  test "does not resolve hostnames to IPs" do
+    DogStatsd.host(:dogstatsd, "localhost")
+    assert DogStatsd.host(:dogstatsd) == "localhost"
+  end
+
+  test "sets nil host to default" do
+    DogStatsd.host(:dogstatsd, nil)
+    assert DogStatsd.host(:dogstatsd) == "127.0.0.1"
+  end
+
+  test "sets nil port to default" do
+    DogStatsd.port(:dogstatsd, nil)
+    assert DogStatsd.port(:dogstatsd) == 8125
+  end
+
+  test "sets prefix to nil when namespace is set to nil" do
+    DogStatsd.namespace(:dogstatsd, nil)
+    assert DogStatsd.namespace(:dogstatsd) == nil
+    assert DogStatsd.prefix(:dogstatsd) == nil
+  end
+
+  test "sets nil tags to default" do
+    DogStatsd.tags(:dogstatsd, nil)
+    assert DogStatsd.tags(:dogstatsd) == []
+  end
+
 end

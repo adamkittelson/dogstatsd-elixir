@@ -51,7 +51,7 @@ defmodule DogStatsd do
   end
 
   def port(dogstatsd, port) do
-    GenServer.call(dogstatsd, {:set_host, port})
+    GenServer.call(dogstatsd, {:set_port, port})
   end
 
   def tags(dogstatsd) do
