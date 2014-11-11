@@ -4,6 +4,9 @@ dogstatsd-elixir
 
 A client for DogStatsd, an extension of the StatsD metric server for Datadog.
 
+[![Build Status](https://travis-ci.org/adamkittelson/dogstatsd-elixir.svg?branch=master)](https://travis-ci.org/adamkittelson/dogstatsd-elixir)
+[![Coverage Status](https://coveralls.io/repos/adamkittelson/dogstatsd-elixir/badge.png?branch=master)](https://coveralls.io/r/adamkittelson/dogstatsd-elixir?branch=master)
+
 Quick Start Guide
 -----------------
 
