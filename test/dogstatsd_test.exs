@@ -89,14 +89,30 @@ defmodule DogStatsdTest do
   # increment
   ###########
 
-  test "formats the message according to the statsd spec" do
+  test "formats the increment message according to the statsd spec" do
     DogStatsd.increment(:dogstatsd, "foobar")
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|c'}
   end
 
-  test "with a sample rate should format the message according to the statsd spec" do
+  test "with a sample rate should format the increment message according to the statsd spec" do
     DogStatsd.increment(:dogstatsd, "foobar", %{:sample_rate => 1.0})
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|c|@1.0'}
   end
+
+
+  ###########
+  # decrement
+  ###########
+
+  test "formats the decrement message according to the statsd spec" do
+    DogStatsd.decrement(:dogstatsd, "foobar")
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:-1|c'}
+  end
+
+  test "with a sample rate should format the decrement message according to the statsd spec" do
+    DogStatsd.decrement(:dogstatsd, "foobar", %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:-1|c|@1.0'}
+  end
+
 
 end
