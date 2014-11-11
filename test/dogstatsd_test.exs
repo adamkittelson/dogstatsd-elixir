@@ -41,6 +41,7 @@ defmodule DogStatsdTest do
     assert DogStatsd.namespace(statsd) == "space"
     assert DogStatsd.tags(statsd) == ["global"]
     assert DogStatsd.max_buffer_size(statsd) == 25
+    assert DogStatsd.prefix(statsd) == "space."
   end
 
 
@@ -60,6 +61,7 @@ defmodule DogStatsdTest do
     assert DogStatsd.namespace(:dogstatsd) == "n4m35p4c3"
     assert DogStatsd.tags(:dogstatsd) == "t4g5"
     assert DogStatsd.max_buffer_size(:dogstatsd) == 25
+    assert DogStatsd.prefix(:dogstatsd) == "n4m35p4c3."
   end
 
   test "does not resolve hostnames to IPs" do

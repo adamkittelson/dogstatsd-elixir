@@ -22,7 +22,6 @@ defmodule DogStatsd do
              |> Map.put_new(:max_buffer_size, 50)
              |> Map.put_new(:buffer, [])
 
-
     GenServer.start_link(__MODULE__, config, options)
   end
 
@@ -67,7 +66,12 @@ defmodule DogStatsd do
   end
 
   def prefix(dogstatsd) do
-    GenServer.call(dogstatsd, :get_prefix)
+    case GenServer.call(dogstatsd, :get_namespace) do
+      nil ->
+        nil
+      namespace ->
+        "#{namespace}."
+    end
   end
 
   def add_to_buffer(dogstatsd, message) do
@@ -109,7 +113,6 @@ defmodule DogStatsd do
   def handle_call({:set_namespace, nil}, _from, config) do
     config = config
              |> Map.put(:namespace, nil)
-             |> Map.put(:prefix, nil)
 
     {:reply, config[:namespace], config}
   end
@@ -117,13 +120,8 @@ defmodule DogStatsd do
   def handle_call({:set_namespace, namespace}, _from, config) do
     config = config
              |> Map.put(:namespace, namespace)
-             |> Map.put(:prefix, "#{namespace}.")
 
     {:reply, config[:namespace], config}
-  end
-
-  def handle_call(:get_prefix, _from, config) do
-    {:reply, config[:prefix], config}
   end
 
   def handle_call(:get_host, _from, config) do
