@@ -102,12 +102,16 @@ defmodule DogStatsd.DogStatsd do
       def format_stats(_dogstatsd, _stat, _delta, _type, %{:sample_rate => sr, :sample => s}) when s > sr, do: nil
       def format_stats(dogstatsd, stat, delta, type, %{:sample => s} = opts), do: format_stats(dogstatsd, stat, delta, type, Map.delete(opts, :sample))
       def format_stats(dogstatsd, stat, delta, type, %{:sample_rate => sr} = opts) do
-        "#{DogStatsd.prefix(dogstatsd)}#{stat}:#{delta}|#{type}|@#{sr}"
+        "#{DogStatsd.prefix(dogstatsd)}#{format_stat(stat)}:#{delta}|#{type}|@#{sr}"
         |> add_tags(opts[:tags])
       end
       def format_stats(dogstatsd, stat, delta, type, opts) do
-        "#{DogStatsd.prefix(dogstatsd)}#{stat}:#{delta}|#{type}"
+        "#{DogStatsd.prefix(dogstatsd)}#{format_stat(stat)}:#{delta}|#{type}"
         |> add_tags(opts[:tags])
+      end
+
+      def format_stat(stat) do
+        String.replace stat, ~r/[:|@]/, "_"
       end
 
       def send_to_socket(_dogstatsd, nil), do: nil

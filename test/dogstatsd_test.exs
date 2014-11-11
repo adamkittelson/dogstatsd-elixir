@@ -242,4 +242,14 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:500|g'}
   end
 
+
+  ############
+  # stat names
+  ############
+
+  test "replaces statsd reserved chars in the stat name" do
+    DogStatsd.increment(:dogstatsd, "ray@hostname.blah|blah.blah:blah")
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ray_hostname.blah_blah.blah_blah:1|c'}
+  end
+
 end
