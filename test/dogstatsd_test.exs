@@ -115,4 +115,20 @@ defmodule DogStatsdTest do
   end
 
 
+  ###########
+  # gauge
+  ###########
+
+  test "should send a message with a 'g' type, per the nearbuy fork" do
+    DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", 536)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:536|g'}
+    DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", -107.3)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:-107.3|g'}
+  end
+
+  test "with a sample rate should format the guage message according to the statsd spec" do
+    DogStatsd.gauge(:dogstatsd, "begrutten-suffusion", 536, %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:536|g|@1.0'}
+  end
+
 end
