@@ -78,10 +78,6 @@ defmodule DogStatsd do
     GenServer.call(dogstatsd, {:add_to_buffer, message})
   end
 
-  def get_buffer(dogstatsd) do
-    GenServer.call(dogstatsd, :get_buffer)
-  end
-
   def flush_buffer(dogstatsd) do
     buffer = dogstatsd
              |> GenServer.call(:flush_buffer)
@@ -167,10 +163,6 @@ defmodule DogStatsd do
 
   def handle_call(:flush_buffer, _from, config) do
     {:reply, config[:buffer], Map.put(config, :buffer, [])}
-  end
-
-  def handle_call(:get_buffer, _from, config) do
-    {:reply, config[:buffer], config}
   end
 
 end
