@@ -27,7 +27,11 @@ defmodule DogStatsd do
   end
 
   def max_buffer_size(dogstatsd) do
-    GenServer.call(dogstatsd, :max_buffer_size)
+    GenServer.call(dogstatsd, :max_buffer_size) || 50
+  end
+
+  def max_buffer_size(dogstatsd, buffer_size) do
+    GenServer.call(dogstatsd, {:set_max_buffer_size, buffer_size})
   end
 
   def namespace(dogstatsd) do
@@ -62,10 +66,6 @@ defmodule DogStatsd do
     GenServer.call(dogstatsd, {:set_tags, tags})
   end
 
-  def socket(dogstatsd) do
-    GenServer.call(dogstatsd, :get_socket)
-  end
-
   def prefix(dogstatsd) do
     GenServer.call(dogstatsd, :get_prefix)
   end
@@ -92,6 +92,13 @@ defmodule DogStatsd do
   end
 
   def handle_call(:max_buffer_size, _from, config) do
+    {:reply, config[:max_buffer_size], config}
+  end
+
+  def handle_call({:set_max_buffer_size, buffer_size}, _from, config) do
+    config = config
+             |> Map.put(:max_buffer_size, buffer_size)
+
     {:reply, config[:max_buffer_size], config}
   end
 

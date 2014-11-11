@@ -25,20 +25,22 @@ defmodule DogStatsdTest do
     assert DogStatsd.port(:dogstatsd) == 1234
   end
 
-  test "defaults the host to 127.0.0.1, port to 8125, namespace to nil, and tags to []" do
+  test "defaults the host to 127.0.0.1, port to 8125, namespace to nil, tags to [] and max buffer size to 50" do
     {:ok, statsd} = DogStatsd.new
     assert DogStatsd.host(statsd) == "127.0.0.1"
     assert DogStatsd.port(statsd) == 8125
     assert DogStatsd.namespace(statsd) == nil
     assert DogStatsd.tags(statsd) == []
+    assert DogStatsd.max_buffer_size(statsd) == 50
   end
 
-  test "should be able to set host, port, namespace, and global tags" do
-    {:ok, statsd} = DogStatsd.new "1.3.3.7", 8126, %{:tags => ["global"], :namespace => "space"}
+  test "should be able to set host, port, namespace, global tags and max_buffer_size" do
+    {:ok, statsd} = DogStatsd.new "1.3.3.7", 8126, %{:tags => ["global"], :namespace => "space", :max_buffer_size => 25}
     assert DogStatsd.host(statsd) == "1.3.3.7"
     assert DogStatsd.port(statsd) == 8126
     assert DogStatsd.namespace(statsd) == "space"
     assert DogStatsd.tags(statsd) == ["global"]
+    assert DogStatsd.max_buffer_size(statsd) == 25
   end
 
 
@@ -46,16 +48,18 @@ defmodule DogStatsdTest do
   # writers
   ##########
 
-  test "sets host, port, namespace, and global tags" do
+  test "sets host, port, namespace, global tags and max_buffer_size" do
     DogStatsd.host(:dogstatsd, "1.2.3.4")
     DogStatsd.port(:dogstatsd, 5678)
     DogStatsd.namespace(:dogstatsd, "n4m35p4c3")
     DogStatsd.tags(:dogstatsd, "t4g5")
+    DogStatsd.max_buffer_size(:dogstatsd, 25)
 
     assert DogStatsd.host(:dogstatsd) == "1.2.3.4"
     assert DogStatsd.port(:dogstatsd) == 5678
     assert DogStatsd.namespace(:dogstatsd) == "n4m35p4c3"
     assert DogStatsd.tags(:dogstatsd) == "t4g5"
+    assert DogStatsd.max_buffer_size(:dogstatsd) == 25
   end
 
   test "does not resolve hostnames to IPs" do
@@ -82,6 +86,11 @@ defmodule DogStatsdTest do
   test "sets nil tags to default" do
     DogStatsd.tags(:dogstatsd, nil)
     assert DogStatsd.tags(:dogstatsd) == []
+  end
+
+  test "sets nil max_buffer_size to default" do
+    DogStatsd.max_buffer_size(:dogstatsd, nil)
+    assert DogStatsd.max_buffer_size(:dogstatsd) == 50
   end
 
 
