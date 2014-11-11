@@ -37,7 +37,7 @@ Then start instrumenting your code:
 require DogStatsd
 
 # Configure DogStatsd.
-statsd = DogStatsd.new("localhost", 8125)
+{:ok, statsd} = DogStatsd.new("localhost", 8125)
 
 # Increment a counter.
 DogStatsd.increment(statsd, "page.views")
