@@ -5,6 +5,13 @@ defmodule DogStatsdTest do
   setup do
     {:ok, dogstatsd} = DogStatsd.new("localhost", 1234)
     Process.register dogstatsd, :dogstatsd
+
+    {:ok, listener} = :gen_udp.open(1234)
+
+    on_exit fn ->
+      :gen_udp.close(listener)
+    end
+
     :ok
   end
 
@@ -75,6 +82,21 @@ defmodule DogStatsdTest do
   test "sets nil tags to default" do
     DogStatsd.tags(:dogstatsd, nil)
     assert DogStatsd.tags(:dogstatsd) == []
+  end
+
+
+  ###########
+  # increment
+  ###########
+
+  test "formats the message according to the statsd spec" do
+    DogStatsd.increment(:dogstatsd, "foobar")
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|c'}
+  end
+
+  test "with a sample rate should format the message according to the statsd spec" do
+    DogStatsd.increment(:dogstatsd, "foobar", %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|c|@1.0'}
   end
 
 end
