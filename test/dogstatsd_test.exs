@@ -136,7 +136,7 @@ defmodule DogStatsdTest do
   # histogram
   ###########
 
-  test "should send a message with a 'h' type" do
+  test "should send a message with an 'h' type" do
     DogStatsd.histogram(:dogstatsd, "ohmy", 536)
     assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h'}
     DogStatsd.histogram(:dogstatsd, "ohmy", -107.3)
@@ -146,6 +146,16 @@ defmodule DogStatsdTest do
   test "with a sample rate should format the histogram message according to the statsd spec" do
     DogStatsd.histogram(:dogstatsd, "ohmy", 536, %{:sample_rate => 1.0})
     assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h|@1.0'}
+  end
+
+
+  ###########
+  # set
+  ###########
+
+  test "should send a message with an 's' type" do
+    DogStatsd.set(:dogstatsd, "my.set", 536)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'my.set:536|s'}
   end
 
 end
