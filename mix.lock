@@ -1,0 +1,3 @@
+%{"excoveralls": {:hex, :excoveralls, "0.3.4"},
+  "jsex": {:hex, :jsex, "2.0.0"},
+  "jsx": {:hex, :jsx, "2.1.1"}}

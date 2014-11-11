@@ -5,6 +5,7 @@ defmodule DogStatsd.Mixfile do
     [app: :dogstatsd,
      version: version,
      elixir: "~> 1.0",
+     test_coverage: [tool: ExCoveralls],
      deps: deps]
   end
 
@@ -25,7 +26,7 @@ defmodule DogStatsd.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:excoveralls, "~> 0.3.4", only: [:dev, :test]}]
   end
 
   defp version do
