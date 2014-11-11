@@ -158,4 +158,19 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'my.set:536|s'}
   end
 
+
+  ###########
+  # timing
+  ###########
+
+  test "should send a message with an 'ms' type" do
+    DogStatsd.timing(:dogstatsd, "foobar", 500)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:500|ms'}
+  end
+
+  test "with a sample rate should format the timing message according to the statsd spec" do
+    DogStatsd.timing(:dogstatsd, "foobar", 500, %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:500|ms|@1.0'}
+  end
+
 end
