@@ -364,4 +364,76 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
   end
 
+
+  ########
+  # event
+  ########
+
+  test "Only title and text" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event")
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event'}
+  end
+
+  test "With line break in Text and title" do
+    title_break_line = "this is the title \n second line"
+    text_break_line = "this is the event \n second line"
+    DogStatsd.event(:dogstatsd, title_break_line, text_break_line)
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{32,32}:this is the title \\n second line|this is the event \\n second line'}
+  end
+
+  test "With known alert_type" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "warning"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:warning'}
+  end
+
+  test "With known alert_type" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "bizarre"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:bizarre'}
+  end
+
+  test "With known priority" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:priority => "low"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|p:low'}
+  end
+
+  test "With unknown priority" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:priority => "bizarre"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|p:bizarre'}
+  end
+
+  test "With hostname" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:hostname => "hostname_test"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|h:hostname_test'}
+  end
+
+  test "With aggregation_key" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:aggregation_key => "aggkey 1"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|k:aggkey 1'}
+  end
+
+  test "With source_type_name" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:source_type_name => "source 1"})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|s:source 1'}
+  end
+
+  test "With several tags" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:tags => ["test:1", "test:2", "tags", "are", "fun"]})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|#test:1,test:2,tags,are,fun'}
+  end
+
+  test "With alert_type, priority, hostname, several tags" do
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "warning", :priority => "low", :hostname => "hostname_test", :tags => ["test:1", "test:2", "tags", "are", "fun"]})
+
+    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|h:hostname_test|p:low|t:warning|#test:1,test:2,tags,are,fun'}
+  end
 end
