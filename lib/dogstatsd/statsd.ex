@@ -1,4 +1,4 @@
-defmodule DogStatsd.DogStatsd do
+defmodule DogStatsd.Statsd do
 
   defmacro __using__(_opts) do
     quote do
@@ -80,7 +80,7 @@ defmodule DogStatsd.DogStatsd do
       end
 
       def batch(dogstatsd, function) do
-        function.(DogStatsd.Buffered)
+        function.(DogStatsd.Batched)
         DogStatsd.flush_buffer(dogstatsd)
       end
 

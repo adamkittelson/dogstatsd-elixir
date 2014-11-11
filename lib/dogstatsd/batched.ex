@@ -1,5 +1,5 @@
-defmodule DogStatsd.Buffered do
-  use DogStatsd.DogStatsd
+defmodule DogStatsd.Batched do
+  use DogStatsd.Statsd
 
   def send_to_socket(dogstatsd, message) do
     buffer = DogStatsd.add_to_buffer(dogstatsd, message)

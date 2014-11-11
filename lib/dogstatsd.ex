@@ -1,6 +1,6 @@
 defmodule DogStatsd do
   use GenServer
-  use DogStatsd.DogStatsd
+  use DogStatsd.Statsd
 
   @default_host "127.0.0.1"
   @default_port 8125
