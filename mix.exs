@@ -6,7 +6,14 @@ defmodule DogStatsd.Mixfile do
      version: version,
      elixir: "~> 1.0",
      test_coverage: [tool: ExCoveralls],
-     deps: deps]
+     deps: deps,
+     package: [
+       contributors: ["Adam Kittelson"],
+       licenses: ["MIT"],
+       links: %{ github: "https://github.com/adamkittelson/dogstatsd-elixir" }
+     ],
+     description: "A client for DogStatsd, an extension of the StatsD metric server for Datadog."
+     ]
   end
 
   # Configuration for the OTP application
