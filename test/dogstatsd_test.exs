@@ -254,4 +254,56 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'ray_hostname.blah_blah.blah_blah:1|c'}
   end
 
+
+  ########
+  # tags
+  ########
+
+  test "gauges support tags" do
+    DogStatsd.gauge(:dogstatsd, "gauge", 1, %{tags: ["country:usa", "state:ny"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'gauge:1|g|#country:usa,state:ny'}
+  end
+
+  test "counters support tags" do
+    DogStatsd.increment(:dogstatsd, "c", %{tags: ["country:usa", "other"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c|#country:usa,other'}
+
+    DogStatsd.decrement(:dogstatsd, "c", %{tags: ["country:china"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:-1|c|#country:china'}
+
+    DogStatsd.count(:dogstatsd, "c", 100, %{tags: ["country:finland"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:100|c|#country:finland'}
+  end
+
+  test "timing support tags" do
+    DogStatsd.timing(:dogstatsd, "t", 200, %{tags: ["country:canada", "other"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 't:200|ms|#country:canada,other'}
+
+    result = DogStatsd.time(:dogstatsd, "foobar", %{:tags => ["123"]}) do
+      :timer.sleep(1)
+      "test"
+    end
+
+    assert result == "test"
+    assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms|#123'}
+  end
+
+  test "global tags setter" do
+    DogStatsd.tags(:dogstatsd, ["country:usa", "other"])
+    DogStatsd.increment(:dogstatsd, "c")
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c|#country:usa,other'}
+  end
+
+  test "global tags setter and regular tags" do
+    DogStatsd.tags(:dogstatsd, ["country:usa", "other"])
+    DogStatsd.increment(:dogstatsd, "c", %{tags: ["somethingelse"]})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c|#country:usa,other,somethingelse'}
+  end
+
+  test "nil global tags" do
+    DogStatsd.tags(:dogstatsd, nil)
+    DogStatsd.increment(:dogstatsd, "c")
+    assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c'}
+  end
+  
 end
