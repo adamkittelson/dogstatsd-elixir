@@ -10,7 +10,8 @@ defmodule DogStatsd.Mixfile do
      package: [
        contributors: ["Adam Kittelson"],
        licenses: ["MIT"],
-       links: %{ github: "https://github.com/adamkittelson/dogstatsd-elixir" }
+       links: %{ github: "https://github.com/adamkittelson/dogstatsd-elixir" },
+       files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"]
      ],
      description: "A client for DogStatsd, an extension of the StatsD metric server for Datadog."
      ]
