@@ -50,7 +50,12 @@ defmodule DogStatsd do
   end
 
   def port(dogstatsd) do
-    GenServer.call(dogstatsd, :get_port) || System.get_env("DD_AGENT_PORT") || @default_port
+    case GenServer.call(dogstatsd, :get_port) || System.get_env("DD_AGENT_PORT") || @default_port do
+      port when is_binary(port) ->
+        String.to_integer(port)
+      port ->
+        port
+    end
   end
 
   def port(dogstatsd, port) do

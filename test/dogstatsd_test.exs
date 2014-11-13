@@ -95,6 +95,11 @@ defmodule DogStatsdTest do
     assert DogStatsd.max_buffer_size(:dogstatsd) == 50
   end
 
+  test "sets string port to integer" do
+    DogStatsd.port(:dogstatsd, "5678")
+    assert DogStatsd.port(:dogstatsd) == 5678
+  end
+
 
   ###########
   # increment
