@@ -7,12 +7,7 @@ defmodule DogStatsd.Mixfile do
      elixir: "~> 1.0",
      test_coverage: [tool: ExCoveralls],
      deps: deps(),
-     package: [
-       contributors: ["Adam Kittelson"],
-       licenses: ["MIT"],
-       links: %{ github: "https://github.com/adamkittelson/dogstatsd-elixir" },
-       files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"]
-     ],
+     package: package(),
      description: "A client for DogStatsd, an extension of the StatsD metric server for Datadog."
      ]
   end
@@ -35,6 +30,16 @@ defmodule DogStatsd.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [{:excoveralls, "~> 0.6.3", only: [:dev, :test]}]
+  end
+
+  defp package do
+    [
+       name: :dogstatsd,
+       files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"],
+       maintainers: ["Adam Kittelson"],
+       licenses: ["MIT"],
+       links: %{ "GitHub" => "https://github.com/adamkittelson/dogstatsd-elixir" }
+     ]
   end
 
   defp version do
