@@ -86,8 +86,7 @@ defmodule DogStatsd.Statsd do
 
       def send_stats(dogstatsd, stat, delta, type, opts \\ %{})
       def send_stats(dogstatsd, stat, delta, type, %{:sample_rate => _sample_rate} = opts) do
-        :random.seed(:os.timestamp)
-        opts = Map.put(opts, :sample, :random.uniform)
+        opts = Map.put(opts, :sample, :rand.uniform)
         send_to_socket dogstatsd, get_global_tags_and_format_stats(dogstatsd, stat, delta, type, opts)
       end
       def send_stats(dogstatsd, stat, delta, type, opts) do

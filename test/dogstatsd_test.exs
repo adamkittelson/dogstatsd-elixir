@@ -394,7 +394,7 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:warning'}
   end
 
-  test "With known alert_type" do
+  test "With unknown alert_type" do
     DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "bizarre"})
 
     assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:bizarre'}

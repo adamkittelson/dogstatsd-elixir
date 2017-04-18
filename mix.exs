@@ -3,10 +3,10 @@ defmodule DogStatsd.Mixfile do
 
   def project do
     [app: :dogstatsd,
-     version: version,
+     version: version(),
      elixir: "~> 1.0",
      test_coverage: [tool: ExCoveralls],
-     deps: deps,
+     deps: deps(),
      package: [
        contributors: ["Adam Kittelson"],
        licenses: ["MIT"],
@@ -34,7 +34,7 @@ defmodule DogStatsd.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:excoveralls, "~> 0.3.4", only: [:dev, :test]}]
+    [{:excoveralls, "~> 0.6.3", only: [:dev, :test]}]
   end
 
   defp version do
