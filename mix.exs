@@ -29,7 +29,10 @@ defmodule DogStatsd.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:excoveralls, "~> 0.6.3", only: [:dev, :test]}]
+    [
+      {:excoveralls, "~> 0.6.3", only: [:dev, :test]},
+      {:ex_doc, ">= 0.0.0", only: :dev}
+    ]
   end
 
   defp package do
