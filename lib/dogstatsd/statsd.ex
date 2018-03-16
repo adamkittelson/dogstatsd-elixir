@@ -80,8 +80,10 @@ defmodule DogStatsd.Statsd do
       end
 
       def batch(dogstatsd, function) do
-        function.(DogStatsd.Batched)
+        res = function.(DogStatsd.Batched)
         DogStatsd.flush_buffer(dogstatsd)
+
+        res
       end
 
       def send_stats(dogstatsd, stat, delta, type, opts \\ %{})
