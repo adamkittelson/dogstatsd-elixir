@@ -324,6 +324,16 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
   end
 
+  test "returns the return value of the block" do
+    ret = DogStatsd.batch :dogstatsd, fn(s) ->
+      s.increment(:dogstatsd, "mycounter")
+
+      :fn_return_val
+    end
+
+    assert ret == :fn_return_val
+  end
+
   test "allows sending multiple samples in one packet" do
     DogStatsd.batch :dogstatsd, fn(s) ->
       s.increment(:dogstatsd, "mycounter")
