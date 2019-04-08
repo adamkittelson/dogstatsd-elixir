@@ -360,7 +360,7 @@ defmodule DogStatsdTest do
     theoretical_reply = Enum.into(1..50, [])
                         |> Enum.map(fn(_) -> "mycounter:1|c" end)
                         |> Enum.join("\n")
-                        |> String.to_char_list
+                        |> String.to_charlist
 
 
     assert_receive {:udp, _port, _from_ip, _from_port, ^theoretical_reply}

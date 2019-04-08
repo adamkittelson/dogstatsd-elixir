@@ -121,9 +121,9 @@ defmodule DogStatsd.Statsd do
 
         {:ok, socket} = :gen_udp.open(0)
         :gen_udp.send(socket,
-                      host(dogstatsd) |> String.to_char_list,
+                      host(dogstatsd) |> String.to_charlist,
                       port(dogstatsd),
-                      message |> String.to_char_list)
+                      message |> String.to_charlist)
         :gen_udp.close(socket)
       end
 
