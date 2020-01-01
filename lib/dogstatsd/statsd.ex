@@ -55,6 +55,10 @@ defmodule DogStatsd.Statsd do
         send_stats dogstatsd, stat, count, :c, opts
       end
 
+      def distribution(dogstatsd, stat, value, opts \\ %{}) do
+        send_stats dogstatsd, stat, value, :d, opts
+      end
+
       def histogram(dogstatsd, stat, value, opts \\ %{}) do
         send_stats dogstatsd, stat, value, :h, opts
       end
