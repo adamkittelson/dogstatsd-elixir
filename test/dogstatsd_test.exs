@@ -164,6 +164,22 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h|@1.0'}
   end
 
+  ###########
+  # distribution
+  ###########
+
+  test "should send a message with an 'd' type" do
+    DogStatsd.distribution(:dogstatsd, "ohmy", 536)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|d'}
+    DogStatsd.distribution(:dogstatsd, "ohmy", -107.3)
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:-107.3|d'}
+  end
+
+  test "with a sample rate should format the distribution message according to the statsd spec" do
+    DogStatsd.distribution(:dogstatsd, "ohmy", 536, %{:sample_rate => 1.0})
+    assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|d|@1.0'}
+  end
+
 
   ###########
   # set
