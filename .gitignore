@@ -1,4 +1,16 @@
 /_build
+/cover
+/deps
+/doc
+/.fetch
+erl_crash.dump
+*.ez
+*.beam
+/config/*.secret.exs
+.env
+.elixir_ls
+
+/_build
 /deps
 erl_crash.dump
 *.ez

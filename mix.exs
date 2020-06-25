@@ -2,14 +2,15 @@ defmodule DogStatsd.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :dogstatsd,
-     version: version(),
-     elixir: "~> 1.0",
-     test_coverage: [tool: ExCoveralls],
-     deps: deps(),
-     package: package(),
-     description: "A client for DogStatsd, an extension of the StatsD metric server for Datadog."
-     ]
+    [
+      app: :dogstatsd,
+      version: version(),
+      elixir: "~> 1.0",
+      test_coverage: [tool: ExCoveralls],
+      deps: deps(),
+      package: package(),
+      description: "A client for DogStatsd, an extension of the StatsD metric server for Datadog."
+    ]
   end
 
   # Configuration for the OTP application
@@ -37,18 +38,18 @@ defmodule DogStatsd.Mixfile do
 
   defp package do
     [
-       name: :dogstatsd,
-       files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"],
-       maintainers: ["Adam Kittelson"],
-       licenses: ["MIT"],
-       links: %{ "GitHub" => "https://github.com/adamkittelson/dogstatsd-elixir" }
-     ]
+      name: :dogstatsd,
+      files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"],
+      maintainers: ["Adam Kittelson"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/adamkittelson/dogstatsd-elixir"}
+    ]
   end
 
   defp version do
-     ~r/[0-9]+/
-     |> Regex.scan(File.read!("VERSION.yml"))
-     |> List.flatten
-     |> Enum.join(".")
+    ~r/[0-9]+/
+    |> Regex.scan(File.read!("VERSION.yml"))
+    |> List.flatten()
+    |> Enum.join(".")
   end
 end
