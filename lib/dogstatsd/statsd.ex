@@ -1,4 +1,7 @@
+# credo:disable-for-this-file Credo.Check.Refactor.LongQuoteBlocks
+
 defmodule DogStatsd.Statsd do
+  @moduledoc false
   defmacro __using__(_opts) do
     quote do
       require Logger

@@ -1,4 +1,6 @@
 defmodule DogStatsd.Batched do
+  @moduledoc false
+
   use DogStatsd.Statsd
 
   def send_to_socket(dogstatsd, message) do

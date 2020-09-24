@@ -1,4 +1,5 @@
 defmodule DogStatsd do
+  @moduledoc false
   use GenServer
   use DogStatsd.Statsd
 
@@ -10,17 +11,20 @@ defmodule DogStatsd do
   end
 
   def new(host, port, opts \\ %{}) do
-    config = opts
-             |> Map.put_new(:host, host)
-             |> Map.put_new(:port, port)
+    config =
+      opts
+      |> Map.put_new(:host, host)
+      |> Map.put_new(:port, port)
+
     start_link(config)
   end
 
   def start_link(config, options \\ []) do
-    config = config
-             |> Map.take([:host, :port, :namespace, :tags, :max_buffer_size])
-             |> Map.put_new(:max_buffer_size, 50)
-             |> Map.put_new(:buffer, [])
+    config =
+      config
+      |> Map.take([:host, :port, :namespace, :tags, :max_buffer_size])
+      |> Map.put_new(:max_buffer_size, 50)
+      |> Map.put_new(:buffer, [])
 
     GenServer.start_link(__MODULE__, config, options)
   end
@@ -53,6 +57,7 @@ defmodule DogStatsd do
     case GenServer.call(dogstatsd, :get_port) || System.get_env("DD_AGENT_PORT") || @default_port do
       port when is_binary(port) ->
         String.to_integer(port)
+
       port ->
         port
     end
@@ -74,6 +79,7 @@ defmodule DogStatsd do
     case GenServer.call(dogstatsd, :get_namespace) do
       nil ->
         nil
+
       namespace ->
         "#{namespace}."
     end
@@ -84,12 +90,13 @@ defmodule DogStatsd do
   end
 
   def flush_buffer(dogstatsd) do
-    buffer = dogstatsd
-             |> GenServer.call(:flush_buffer)
-             |> Enum.join("\n")
-    send_to_socket dogstatsd, buffer
-  end
+    buffer =
+      dogstatsd
+      |> GenServer.call(:flush_buffer)
+      |> Enum.join("\n")
 
+    send_to_socket(dogstatsd, buffer)
+  end
 
   ###################
   # Server Callbacks
@@ -103,8 +110,9 @@ defmodule DogStatsd do
   end
 
   def handle_call({:set_max_buffer_size, buffer_size}, _from, config) do
-    config = config
-             |> Map.put(:max_buffer_size, buffer_size)
+    config =
+      config
+      |> Map.put(:max_buffer_size, buffer_size)
 
     {:reply, config[:max_buffer_size], config}
   end
@@ -114,15 +122,17 @@ defmodule DogStatsd do
   end
 
   def handle_call({:set_namespace, nil}, _from, config) do
-    config = config
-             |> Map.put(:namespace, nil)
+    config =
+      config
+      |> Map.put(:namespace, nil)
 
     {:reply, config[:namespace], config}
   end
 
   def handle_call({:set_namespace, namespace}, _from, config) do
-    config = config
-             |> Map.put(:namespace, namespace)
+    config =
+      config
+      |> Map.put(:namespace, namespace)
 
     {:reply, config[:namespace], config}
   end
@@ -132,8 +142,9 @@ defmodule DogStatsd do
   end
 
   def handle_call({:set_host, host}, _from, config) do
-    config = config
-             |> Map.put(:host, host)
+    config =
+      config
+      |> Map.put(:host, host)
 
     {:reply, config[:host], config}
   end
@@ -143,8 +154,9 @@ defmodule DogStatsd do
   end
 
   def handle_call({:set_port, port}, _from, config) do
-    config = config
-             |> Map.put(:port, port)
+    config =
+      config
+      |> Map.put(:port, port)
 
     {:reply, config[:port], config}
   end
@@ -154,8 +166,9 @@ defmodule DogStatsd do
   end
 
   def handle_call({:set_tags, tags}, _from, config) do
-    config = config
-             |> Map.put(:tags, tags)
+    config =
+      config
+      |> Map.put(:tags, tags)
 
     {:reply, config[:tags], config}
   end
@@ -169,5 +182,4 @@ defmodule DogStatsd do
   def handle_call(:flush_buffer, _from, config) do
     {:reply, config[:buffer], Map.put(config, :buffer, [])}
   end
-
 end

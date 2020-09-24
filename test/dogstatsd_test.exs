@@ -4,17 +4,16 @@ defmodule DogStatsdTest do
 
   setup do
     {:ok, dogstatsd} = DogStatsd.new("localhost", 1234)
-    Process.register dogstatsd, :dogstatsd
+    Process.register(dogstatsd, :dogstatsd)
 
     {:ok, listener} = :gen_udp.open(1234)
 
-    on_exit fn ->
+    on_exit(fn ->
       :gen_udp.close(listener)
-    end
+    end)
 
     :ok
   end
-
 
   ##########
   # new
@@ -26,7 +25,7 @@ defmodule DogStatsdTest do
   end
 
   test "defaults the host to 127.0.0.1, port to 8125, namespace to nil, tags to [] and max buffer size to 50" do
-    {:ok, statsd} = DogStatsd.new
+    {:ok, statsd} = DogStatsd.new()
     assert DogStatsd.host(statsd) == "127.0.0.1"
     assert DogStatsd.port(statsd) == 8125
     assert DogStatsd.namespace(statsd) == nil
@@ -35,7 +34,13 @@ defmodule DogStatsdTest do
   end
 
   test "should be able to set host, port, namespace, global tags and max_buffer_size" do
-    {:ok, statsd} = DogStatsd.new "1.3.3.7", 8126, %{:tags => ["global"], :namespace => "space", :max_buffer_size => 25}
+    {:ok, statsd} =
+      DogStatsd.new("1.3.3.7", 8126, %{
+        :tags => ["global"],
+        :namespace => "space",
+        :max_buffer_size => 25
+      })
+
     assert DogStatsd.host(statsd) == "1.3.3.7"
     assert DogStatsd.port(statsd) == 8126
     assert DogStatsd.namespace(statsd) == "space"
@@ -43,7 +48,6 @@ defmodule DogStatsdTest do
     assert DogStatsd.max_buffer_size(statsd) == 25
     assert DogStatsd.prefix(statsd) == "space."
   end
-
 
   ##########
   # writers
@@ -100,7 +104,6 @@ defmodule DogStatsdTest do
     assert DogStatsd.port(:dogstatsd) == 5678
   end
 
-
   ###########
   # increment
   ###########
@@ -115,7 +118,6 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|c|@1.0'}
   end
 
-
   ###########
   # decrement
   ###########
@@ -129,7 +131,6 @@ defmodule DogStatsdTest do
     DogStatsd.decrement(:dogstatsd, "foobar", %{:sample_rate => 1.0})
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:-1|c|@1.0'}
   end
-
 
   ###########
   # gauge
@@ -147,7 +148,6 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'begrutten-suffusion:536|g|@1.0'}
   end
 
-
   ###########
   # histogram
   ###########
@@ -164,7 +164,6 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'ohmy:536|h|@1.0'}
   end
 
-
   ###########
   # set
   ###########
@@ -173,7 +172,6 @@ defmodule DogStatsdTest do
     DogStatsd.set(:dogstatsd, "my.set", 536)
     assert_receive {:udp, _port, _from_ip, _from_port, 'my.set:536|s'}
   end
-
 
   ###########
   # timing
@@ -189,29 +187,31 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:500|ms|@1.0'}
   end
 
-
   ###########
   # time
   ###########
 
   test "formats the time message correctly and returns the value of the block" do
-    return_value = DogStatsd.time(:dogstatsd, "foobar") do
-                     :timer.sleep(1)
-                     "test"
-                   end
+    return_value =
+      DogStatsd.time :dogstatsd, "foobar" do
+        :timer.sleep(1)
+        "test"
+      end
+
     assert return_value == "test"
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms'}
   end
 
   test "with a sample rate should format the time message according to the statsd spec" do
-    return_value = DogStatsd.time(:dogstatsd, "foobar", %{:sample_rate => 1.0}) do
-                     :timer.sleep(1)
-                     "test"
-                   end
+    return_value =
+      DogStatsd.time :dogstatsd, "foobar", %{:sample_rate => 1.0} do
+        :timer.sleep(1)
+        "test"
+      end
+
     assert return_value == "test"
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms|@1.0'}
   end
-
 
   ############
   # namespaces
@@ -249,7 +249,6 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'service.foobar:500|g'}
   end
 
-
   ############
   # stat names
   ############
@@ -258,7 +257,6 @@ defmodule DogStatsdTest do
     DogStatsd.increment(:dogstatsd, "ray@hostname.blah|blah.blah:blah")
     assert_receive {:udp, _port, _from_ip, _from_port, 'ray_hostname.blah_blah.blah_blah:1|c'}
   end
-
 
   ########
   # tags
@@ -284,10 +282,11 @@ defmodule DogStatsdTest do
     DogStatsd.timing(:dogstatsd, "t", 200, %{tags: ["country:canada", "other"]})
     assert_receive {:udp, _port, _from_ip, _from_port, 't:200|ms|#country:canada,other'}
 
-    result = DogStatsd.time(:dogstatsd, "foobar", %{:tags => ["123"]}) do
-      :timer.sleep(1)
-      "test"
-    end
+    result =
+      DogStatsd.time :dogstatsd, "foobar", %{:tags => ["123"]} do
+        :timer.sleep(1)
+        "test"
+      end
 
     assert result == "test"
     assert_receive {:udp, _port, _from_ip, _from_port, 'foobar:1|ms|#123'}
@@ -311,33 +310,32 @@ defmodule DogStatsdTest do
     assert_receive {:udp, _port, _from_ip, _from_port, 'c:1|c'}
   end
 
-
   ##########
   # batched
   ##########
 
   test "allows sending single sample in one packet" do
-    DogStatsd.batch :dogstatsd, fn(s) ->
+    DogStatsd.batch(:dogstatsd, fn s ->
       s.increment(:dogstatsd, "mycounter")
-    end
+    end)
 
     assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
   end
 
   test "allows sending multiple samples in one packet" do
-    DogStatsd.batch :dogstatsd, fn(s) ->
+    DogStatsd.batch(:dogstatsd, fn s ->
       s.increment(:dogstatsd, "mycounter")
       s.decrement(:dogstatsd, "myothercounter")
-    end
+    end)
 
     assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c\nmyothercounter:-1|c'}
   end
 
   test "defaults back to single metric packets after the block" do
-    DogStatsd.batch :dogstatsd, fn(s) ->
+    DogStatsd.batch(:dogstatsd, fn s ->
       s.gauge(:dogstatsd, "mygauge", 10)
       s.gauge(:dogstatsd, "myothergauge", 20)
-    end
+    end)
 
     DogStatsd.increment(:dogstatsd, "mycounter")
     DogStatsd.increment(:dogstatsd, "myothercounter")
@@ -348,27 +346,26 @@ defmodule DogStatsdTest do
   end
 
   test "flushes when the buffer gets too big" do
-    DogStatsd.batch :dogstatsd, fn(s) ->
+    DogStatsd.batch(:dogstatsd, fn s ->
       # increment a counter 50 times in batch
-      Enum.each(1..51, fn(_) ->
+      Enum.each(1..51, fn _ ->
         s.increment(:dogstatsd, "mycounter")
       end)
-    end
+    end)
 
     # We should receive a packet of 50 messages that was automatically
     # flushed when the buffer got too big
-    theoretical_reply = Enum.into(1..50, [])
-                        |> Enum.map(fn(_) -> "mycounter:1|c" end)
-                        |> Enum.join("\n")
-                        |> String.to_char_list
-
+    theoretical_reply =
+      Enum.into(1..50, [])
+      |> Enum.map(fn _ -> "mycounter:1|c" end)
+      |> Enum.join("\n")
+      |> String.to_char_list()
 
     assert_receive {:udp, _port, _from_ip, _from_port, ^theoretical_reply}
 
     # When the block finishes, the remaining buffer is flushed
     assert_receive {:udp, _port, _from_ip, _from_port, 'mycounter:1|c'}
   end
-
 
   ########
   # event
@@ -377,7 +374,8 @@ defmodule DogStatsdTest do
   test "Only title and text" do
     DogStatsd.event(:dogstatsd, "this is the title", "this is the event")
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event'}
   end
 
   test "With line break in Text and title" do
@@ -385,60 +383,91 @@ defmodule DogStatsdTest do
     text_break_line = "this is the event \n second line"
     DogStatsd.event(:dogstatsd, title_break_line, text_break_line)
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{32,32}:this is the title \\n second line|this is the event \\n second line'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{32,32}:this is the title \\n second line|this is the event \\n second line'}
   end
 
   test "With known alert_type" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "warning"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :alert_type => "warning"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:warning'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|t:warning'}
   end
 
   test "With unknown alert_type" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "bizarre"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :alert_type => "bizarre"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|t:bizarre'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|t:bizarre'}
   end
 
   test "With known priority" do
     DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:priority => "low"})
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|p:low'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|p:low'}
   end
 
   test "With unknown priority" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:priority => "bizarre"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :priority => "bizarre"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|p:bizarre'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|p:bizarre'}
   end
 
   test "With hostname" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:hostname => "hostname_test"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :hostname => "hostname_test"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|h:hostname_test'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|h:hostname_test'}
   end
 
   test "With aggregation_key" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:aggregation_key => "aggkey 1"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :aggregation_key => "aggkey 1"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|k:aggkey 1'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|k:aggkey 1'}
   end
 
   test "With source_type_name" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:source_type_name => "source 1"})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :source_type_name => "source 1"
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|s:source 1'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|s:source 1'}
   end
 
   test "With several tags" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:tags => ["test:1", "test:2", "tags", "are", "fun"]})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :tags => ["test:1", "test:2", "tags", "are", "fun"]
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|#test:1,test:2,tags,are,fun'}
+    assert_receive {:udp, _port, _from_ip, _from_port,
+                    '_e{17,17}:this is the title|this is the event|#test:1,test:2,tags,are,fun'}
   end
 
   test "With alert_type, priority, hostname, several tags" do
-    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{:alert_type => "warning", :priority => "low", :hostname => "hostname_test", :tags => ["test:1", "test:2", "tags", "are", "fun"]})
+    DogStatsd.event(:dogstatsd, "this is the title", "this is the event", %{
+      :alert_type => "warning",
+      :priority => "low",
+      :hostname => "hostname_test",
+      :tags => ["test:1", "test:2", "tags", "are", "fun"]
+    })
 
-    assert_receive {:udp, _port, _from_ip, _from_port, '_e{17,17}:this is the title|this is the event|h:hostname_test|p:low|t:warning|#test:1,test:2,tags,are,fun'}
+    test_string =
+      '_e{17,17}:this is the title|this is the event|h:hostname_test|p:low|t:warning|#test:1,test:2,tags,are,fun'
+
+    assert_receive {:udp, _port, _from_ip, _from_port, test_string}
   end
 end
