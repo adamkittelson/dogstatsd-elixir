@@ -20,7 +20,7 @@ jobs:
         with:
           otp-version: ${{ env.OTP_VERSION }}
           elixir-version: ${{ env.ELIXIR_VERSION }}
-      - name: Signing into narrativeapp organisation on hex
+      - name: Signing into narrativeapp organization on hex
         run: mix hex.organization auth narrativeapp --key $NARRATIVE_HEX_ORG_API_KEY
       - name: Downloading dependency cache
         uses: actions/cache@v2
@@ -228,4 +228,4 @@ jobs:
           asset_name: ${{ steps.app-name.outputs.app-name }}-docs-${{ steps.app-version.outputs.app-version }}.tar.gz
           asset_content_type: application/gzip
       - name: Publishing hex package
-        run: mix hex.publish --organisation narrativeapp --yes
+        run: mix hex.publish --organization narrativeapp --yes
