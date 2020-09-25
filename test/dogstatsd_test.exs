@@ -191,6 +191,7 @@ defmodule DogStatsdTest do
   # time
   ###########
 
+  @tag skip: "Potentially blinking test on master"
   test "formats the time message correctly and returns the value of the block" do
     return_value =
       DogStatsd.time :dogstatsd, "foobar" do
