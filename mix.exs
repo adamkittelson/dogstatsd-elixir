@@ -4,7 +4,7 @@ defmodule DogStatsd.Mixfile do
   def project do
     [
       app: :dogstatsd,
-      version: version(),
+      version: "0.0.5",
       elixir: "~> 1.0",
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
@@ -40,17 +40,10 @@ defmodule DogStatsd.Mixfile do
   defp package do
     [
       name: :dogstatsd,
-      files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md", "VERSION.yml"],
+      files: ["lib/*", "mix.exs", "README.md", "LICENSE.md", "CHANGELOG.md"],
       maintainers: ["Adam Kittelson"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/adamkittelson/dogstatsd-elixir"}
     ]
-  end
-
-  defp version do
-    ~r/[0-9]+/
-    |> Regex.scan(File.read!("VERSION.yml"))
-    |> List.flatten()
-    |> Enum.join(".")
   end
 end
