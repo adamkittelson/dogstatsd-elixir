@@ -32,7 +32,7 @@ defmodule DogStatsd.Mixfile do
   defp deps do
     [
       {:excoveralls, "~> 0.6.3", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false}
     ]
   end
