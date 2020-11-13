@@ -31,7 +31,7 @@ defmodule DogStatsd.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:excoveralls, "~> 0.6.3", only: [:dev, :test]},
+      {:excoveralls, "~> 0.13.3", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
       {:credo, "~> 1.5.1", only: [:dev, :test], runtime: false}
     ]
