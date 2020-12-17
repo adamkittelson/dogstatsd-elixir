@@ -17,7 +17,7 @@ First install the library:
       ```elixir
       def deps do
         [
-          {:dogstatsd, "0.0.3"}
+          {:dogstatsd, "0.0.5"}
         ]
       end
       ```

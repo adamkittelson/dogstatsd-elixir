@@ -2,6 +2,14 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :git_ops,
+  mix_project: DogStatsd.MixProject,
+  changelog_file: "CHANGELOG.md",
+  repository_url: "https://github.com/NarrativeApp/DogStatsd",
+  manage_mix_version?: true,
+  manage_readme_version: "README.md",
+  version_tag_prefix: "v"
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

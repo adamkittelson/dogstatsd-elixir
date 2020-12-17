@@ -1,10 +1,12 @@
-defmodule DogStatsd.Mixfile do
+defmodule DogStatsd.MixProject do
   use Mix.Project
+
+  @version "0.0.5"
 
   def project do
     [
       app: :dogstatsd,
-      version: "0.0.5",
+      version: @version,
       elixir: "~> 1.0",
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
@@ -31,9 +33,10 @@ defmodule DogStatsd.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:excoveralls, "~> 0.13.3", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
-      {:credo, "~> 1.5.1", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5.1", only: ~w[dev test]a, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: ~w[dev test]a},
+      {:excoveralls, "~> 0.13.3", only: ~w[dev test]a},
+      {:git_ops, "~> 2.2", only: ~w[dev test]a, runtime: false}
     ]
   end
 
