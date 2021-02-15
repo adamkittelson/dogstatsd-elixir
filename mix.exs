@@ -35,7 +35,7 @@ defmodule DogStatsd.MixProject do
     [
       {:credo, "~> 1.5.1", only: ~w[dev test]a, runtime: false},
       {:ex_doc, ">= 0.0.0", only: ~w[dev test]a},
-      {:excoveralls, "~> 0.13.3", only: ~w[dev test]a},
+      {:excoveralls, "~> 0.14.0", only: ~w[dev test]a},
       {:git_ops, "~> 2.2", only: ~w[dev test]a, runtime: false}
     ]
   end
