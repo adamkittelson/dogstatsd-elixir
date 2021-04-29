@@ -1,0 +1,23 @@
+version: 2
+registries:
+  hex-organization-narrativeapp:
+    type: hex-organization
+    organization: narrativeapp
+    key: "${{secrets.HEX_ORGANIZATION_NARRATIVEAPP_KEY}}"
+
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  reviewers:
+  - jimsynz
+  - d-staehler
+  - steffanlevet
+  ignore:
+  - dependency-name: ex_doc
+    versions:
+    - 0.24.1
+  registries:
+  - hex-organization-narrativeapp
