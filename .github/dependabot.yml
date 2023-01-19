@@ -12,9 +12,7 @@ updates:
     interval: daily
   open-pull-requests-limit: 10
   reviewers:
-  - jimsynz
-  - d-staehler
-  - steffanlevet
+  - puzza007
   ignore:
   - dependency-name: ex_doc
     versions:
